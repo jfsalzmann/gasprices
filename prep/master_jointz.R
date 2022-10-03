@@ -16,3 +16,14 @@ joinable_data <- data_weather %>%
 including_weather <- data_constructed %>%
   left_join(joinable_data)
 
+############## Quartiles 
+
+
+#dont_work <- including_weather %>% 
+#  mutate(Quater =
+#    case_when(
+##    Gasday <= 2022-01-01 ~ "Q1",
+ #   Gasday >= 2022-01-01 ~ "Q2",
+#  ))
+
+
