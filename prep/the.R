@@ -92,5 +92,8 @@ save(data_the_combined,file="data-constr/the_combined.RData")
 
 
 
-data_the_combined %>% mutate(across(where(is.numeric), ~ .x/total)) %>% setNames(names(.) %.% "_rel") %>% rename(date = date_rel)
-save(data_the_combined,file="data-constr/the_combined_rel.RData")
+data_the_combined_rel = data_the_combined %>%
+  mutate(across(where(is.numeric), ~ .x/total)) %>%
+  setNames(names(.) %.% "_rel") %>%
+  rename(date = date_rel)
+save(data_the_combined_rel,file="data-constr/the_combined_rel.RData")
