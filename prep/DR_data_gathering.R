@@ -28,7 +28,8 @@ to_date <- as.numeric(as.POSIXct(currentDate))
 # import our downloaded data
 
 DAX_data <- read.csv("data-orig/DAX.csv")%>% 
-  select(Date, Close)
+  select(Date, Close) %>% 
+  rename(date = Date, index = Close)
 
 DAX_data
 
@@ -38,6 +39,9 @@ save(DAX_data, file = "data-constr/DAX_data.RData")
 # data on gas prices
 
 gas_data <- read.csv("data-orig/Dutch TTF Natural Gas Futures Historical Data.csv") %>% 
-  select(Date, Price)
+  select(Date, Price) %>% 
+  rename(date = Date, price = Price)
 
 save(gas_data, file = "data-constr/gas_price_data.RData")
+
+
