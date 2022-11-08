@@ -3,6 +3,7 @@ library(XML)
 library(tidyverse)
 library(magrittr)
 library(httr)
+library(readr)
 
 url = "https://datenservice.tradinghub.eu/XmlInterface/getXML.ashx?ReportId=AggregatedConsumptionData&Start=01-06-2020&End=31-12-2022"
 file_orig = "data-orig/the.xml"
@@ -25,7 +26,64 @@ readLines(file_orig) %>%
   writeLines(file_adj)
 
 
-data = read_xml(file_adj) %>%
+is_all_numeric = function(x) {
+  !any(is.na(suppressWarnings(as.numeric(na.omit(x))))) & is.character(x)
+}
+
+data_the = read_xml(file_adj) %>%
   xmlParse() %>%
   getNodeSet("//AggregatedConsumptionData") %>%
-  xmlToDataFrame()
+  xmlToDataFrame() %>% 
+  select(-Status,-Unit) %>%
+  filter(Gasday <= Sys.Date()-1) %>%
+  mutate_if(is_all_numeric,as.numeric) %>%
+  mutate(Gasday = as.Date(Gasday), total = HGasSLPsyn+LGasSLPsyn+HGasSLPana+LGasSLPsyn+HGasRLMmT+LGasRLMmT+HGasRLMoT+LGasRLMoT)
+
+save(data_the,file="data-constr/the.RData")
+
+
+
+
+url = "https://www.tradinghub.eu/Portals/0/Archiv%20GASPOOL/verbrauchsdaten-gesamt%5b1%5d.csv?ver=BY7wJ3jSq7CqEWv7Qtka1w%3d%3d"
+file_orig = "data-orig/the_gaspool.csv"
+GET(url, write_disk(file_orig, overwrite=TRUE))
+data_the_gaspool = read_delim(file_orig, delim = ";", escape_double = FALSE, col_types = cols(Datum = col_date(format = "%d.%m.%Y")), trim_ws = TRUE)
+names(data_the_gaspool) = c(
+  "Gasday","HGasSLPsyn", "LGasSLPsyn", "HGasSLPana", "LGasSLPana", "HGasRLMmT", "LGasRLMmT", "HGasRLMoT","LGasRLMoT"
+)
+data_the_gaspool %<>% mutate(total = HGasSLPsyn+LGasSLPsyn+HGasSLPana+LGasSLPsyn+HGasRLMmT+LGasRLMmT+HGasRLMoT+LGasRLMoT)
+save(data_the_gaspool,file="data-constr/the_gaspool.RData")
+
+
+
+url = "https://www.tradinghub.eu/Portals/0/Archiv%20NCG/AggregatedConsumptionData[1].csv?ver=QvIUEDkSVZrhNqQ9YEsu8w%3d%3d"
+file_orig = "data-orig/the_ncg.csv"
+GET(url, write_disk(file_orig, overwrite=TRUE))
+data_the_ncg = read_delim(file_orig, delim = ";", escape_double = FALSE, col_types = cols(DayOfUse = col_date(format = "%d.%m.%Y")), trim_ws = TRUE) %>%
+  rename(Gasday = DayOfUse) %>%
+  select(-contains('Unit'),-Status) %>%
+  filter(Gasday >= '2016-10-01') %>% 
+  mutate(total = HGasSLPsyn+LGasSLPsyn+HGasSLPana+LGasSLPsyn+HGasRLMmT+LGasRLMmT+HGasRLMoT+LGasRLMoT)
+save(data_the_ncg,file="data-constr/the_ncg.RData")
+
+
+
+data_historic = data_the_gaspool %>% left_join(data_the_ncg, by = c("Gasday")) %>% mutate(
+  HGasSLPsyn = HGasSLPsyn.x + HGasSLPsyn.y,
+  LGasSLPsyn = LGasSLPsyn.x + LGasSLPsyn.y,
+  HGasSLPana = HGasSLPana.x + HGasSLPana.y,
+  LGasSLPana = LGasSLPana.x + LGasSLPana.y,
+  HGasRLMmT = HGasRLMmT.x + HGasRLMmT.y,
+  LGasRLMmT = LGasRLMmT.x + LGasRLMmT.y,
+  HGasRLMoT = HGasRLMoT.x + HGasRLMoT.y,
+  LGasRLMoT = LGasRLMoT.x + LGasRLMoT.y,
+  total = total.x + total.y
+) %>% select(-contains('.x'),-contains('.y'))
+
+save(data_the_historic,file="data-constr/the_historic.RData")
+
+
+
+
+data_the_combined = data_historic %>% bind_rows(data_the)
+save(data_the_combined,file="data-constr/the_combined.RData")
