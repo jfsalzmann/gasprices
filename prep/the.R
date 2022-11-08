@@ -5,6 +5,8 @@ library(magrittr)
 library(httr)
 library(readr)
 
+"%.%" = function(x,y){paste(x,y,sep = "")}
+
 url = "https://datenservice.tradinghub.eu/XmlInterface/getXML.ashx?ReportId=AggregatedConsumptionData&Start=01-06-2020&End=31-12-2022"
 file_orig = "data-orig/the.xml"
 file_adj = "data-constr/the.xml"
@@ -68,7 +70,7 @@ save(data_the_ncg,file="data-constr/the_ncg.RData")
 
 
 
-data_historic = data_the_gaspool %>% left_join(data_the_ncg, by = c("Gasday")) %>% mutate(
+data_the_historic = data_the_gaspool %>% left_join(data_the_ncg, by = c("Gasday")) %>% mutate(
   HGasSLPsyn = HGasSLPsyn.x + HGasSLPsyn.y,
   LGasSLPsyn = LGasSLPsyn.x + LGasSLPsyn.y,
   HGasSLPana = HGasSLPana.x + HGasSLPana.y,
@@ -85,5 +87,10 @@ save(data_the_historic,file="data-constr/the_historic.RData")
 
 
 
-data_the_combined = data_historic %>% bind_rows(data_the)
+data_the_combined = data_the_historic %>% bind_rows(data_the) %>% rename(date = Gasday)
 save(data_the_combined,file="data-constr/the_combined.RData")
+
+
+
+data_the_combined %>% mutate(across(where(is.numeric), ~ .x/total)) %>% setNames(names(.) %.% "_rel")
+save(data_the_combined,file="data-constr/the_combined_rel.RData")
