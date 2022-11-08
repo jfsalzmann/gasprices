@@ -3,6 +3,7 @@
 library(httr)
 library(anytime)
 library(magrittr)
+library(dplyr)
 
 # Introduce shortcuts
 
@@ -23,3 +24,14 @@ GET(url, write_disk(file, overwrite=TRUE))
 
 from_date <- anydate(1510099200)
 to_date <- as.numeric(as.POSIXct(currentDate))
+
+# import our downloaded data
+
+DAX_data <- read.csv("data-orig/DAX.csv")%>% 
+  select(Date, Close)
+
+DAX_data
+
+save(DAX_data, file = "data-constr/DAX_data.RData")
+
+getwd()
