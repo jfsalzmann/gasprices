@@ -34,4 +34,10 @@ DAX_data
 
 save(DAX_data, file = "data-constr/DAX_data.RData")
 
-getwd()
+
+# data on gas prices
+
+gas_data <- read.csv("data-orig/Dutch TTF Natural Gas Futures Historical Data.csv") %>% 
+  select(Date, Price)
+
+save(gas_data, file = "data-constr/gas_price_data.RData")
