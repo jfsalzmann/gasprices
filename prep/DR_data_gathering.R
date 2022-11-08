@@ -29,7 +29,8 @@ to_date <- as.numeric(as.POSIXct(currentDate))
 
 DAX_data <- read.csv("data-orig/DAX.csv")%>% 
   select(Date, Close) %>% 
-  rename(date = Date, index = Close)
+  rename(date = Date, index = Close) %>% 
+  mutate(date = as.Date(date))
 
 DAX_data
 
@@ -40,8 +41,15 @@ save(DAX_data, file = "data-constr/DAX_data.RData")
 
 gas_data <- read.csv("data-orig/Dutch TTF Natural Gas Futures Historical Data.csv") %>% 
   select(Date, Price) %>% 
-  rename(date = Date, price = Price)
+  rename(date = Date, price = Price)%>% 
+  mutate(date = as.Date(date))
 
 save(gas_data, file = "data-constr/gas_price_data.RData")
 
+# data on GDP
 
+Quarterly_GDP <- read.csv("data-orig/Quarterly_GDP.csv")%>% 
+  mutate(date = as.Date(date))
+
+save(Quarterly_GDP, file = "data-constr/Quarterly_GDP_data.RData")
+  
