@@ -49,8 +49,8 @@ save(DAX_data, file = "data-constr/DAX_data.RData")
 # data on gas prices
 
 gas_data <- read_csv("data-orig/Dutch TTF Natural Gas Futures Historical Data.csv", col_types = cols(Date = col_date(format = "%m/%d/%Y"))) %>% 
-  select(Date, Price) %>% 
   rename(date = Date, gasprice = Price)%>% 
+  select(date, gasprice) %>% 
   mutate(date = as.Date(date))
 
 gas_data = date_full %>%
@@ -58,6 +58,8 @@ gas_data = date_full %>%
   mutate(gasprice = na_interpolation(as.numeric(gasprice)))
 
 save(gas_data, file = "data-constr/gas_price_data.RData")
+
+
 
 # data on GDP
 
@@ -71,3 +73,37 @@ Quarterly_GDP = date_full %>%
 
 save(Quarterly_GDP, file = "data-constr/Quarterly_GDP_data.RData")
   
+
+
+
+
+# data on electricity prices
+
+el_data <- read_csv("data-orig/German Power Baseload Calendar Month Futures Historical Data.csv",
+                     col_types = cols(Date = col_date(format = "%m/%d/%Y"))) %>%
+  rename(date = Date, elprice = Price)%>% 
+  select(date, elprice) %>% 
+  mutate(date = as.Date(date))
+
+el_data = date_full %>%
+  left_join(el_data, by=c("date")) %>%
+  mutate(elprice = na_interpolation(as.numeric(elprice)))
+
+save(el_data, file = "data-constr/el_price_data.RData")
+
+
+
+
+# data on co2 prices
+
+co2_data <- read_csv("data-orig/Carbon Emissions Futures Historical Data.csv",
+                    col_types = cols(Date = col_date(format = "%m/%d/%Y"))) %>% 
+  rename(date = Date, co2price = Price)%>% 
+  select(date, co2price) %>% 
+  mutate(date = as.Date(date))
+
+co2_data = date_full %>%
+  left_join(co2_data, by=c("date")) %>%
+  mutate(co2price = na_interpolation(as.numeric(co2price)))
+
+save(co2_data, file = "data-constr/co2_price_data.RData")

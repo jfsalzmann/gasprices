@@ -8,6 +8,8 @@ load('data-constr/the_combined.Rdata')
 load('data-constr/the_combined_rel.Rdata')
 load('data-constr/Quarterly_GDP_data.Rdata')
 load('data-constr/gas_price_data.Rdata')
+load('data-constr/el_price_data.Rdata')
+load('data-constr/co2_price_data.Rdata')
 
 
 startdate = as.Date("2017-11-01")
@@ -22,6 +24,8 @@ all_variables_combined = date_full %>%
   left_join(data_the_combined_rel, by = 'date') %>%
   left_join(Quarterly_GDP, by = 'date') %>%
   left_join(gas_data, by = 'date') %>%
+  left_join(el_data, by = 'date') %>%
+  left_join(co2_data, by = 'date') %>%
   rename(y = total)
 
 
