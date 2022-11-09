@@ -23,19 +23,19 @@ currentDate = Sys.Date()-1
 date_full = seq(startdate, currentDate, by="days") %>% data.frame(date = .)
 
 date_full %<>%
-  mutate(day = day(date),
-         month = month(date),
-         year = year(date),
-         weekday = wday(date),
-         week = week(date))
+  mutate(d_day = day(date),
+         d_month = month(date),
+         d_year = year(date),
+         d_weekday = wday(date),
+         d_week = week(date))
 
 transform_sin = function(data){
-  data %>% select(-contains("_")) %>% select_if(is.numeric) %>%
+  data %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "_sin") %>% mutate_all(~sin(2*pi*./max(.))) %>% cbind(data) 
 }
 
 transform_cos = function(data){
-  data %>% select(-contains("_")) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("_sin")) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "_cos") %>% mutate_all(~cos(2*pi*./max(.))) %>% cbind(data) 
 }
 
@@ -88,7 +88,7 @@ all_variables_combined %<>% transform_elas() %>%
 ######### LAG: 7 day w/ na interpolation
 
 transform_lag = function(data,lag=1){
-  data %>% select(-contains("____"),-date) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("____"),-date,-contains("d_")) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "____lag" %.% lag) %>% mutate_all(~ lag(.,order_by = data$date)) %>% cbind(data) %>%
     mutate_all(~ na_interpolation(.))
 }
