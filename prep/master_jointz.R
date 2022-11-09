@@ -26,7 +26,8 @@ all_variables_combined = date_full %>%
   left_join(gas_data, by = 'date') %>%
   left_join(el_data, by = 'date') %>%
   left_join(co2_data, by = 'date') %>%
-  rename(y = total)
+  rename(y = total) %>%
+  na.omit()
 
 
 save(all_variables_combined,file="data-constr/masters_jointz.RData")
