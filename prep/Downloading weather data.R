@@ -16,11 +16,10 @@ library(jsonlite)
 library(tibble)
 
 parsed_url_hamburg <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10147&start=2016-10-01&end=2022-12-31")
-parsed_url_frankfurt <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=D1424&start=2016-10-01&end=2022-12-31")
-parsed_url_berlin <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10389&start=2016-10-01&end=2022-12-31")
+parsed_url_frankfurt <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10637&start=2016-10-01&end=2022-12-31")
+parsed_url_berlin <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10384&start=2016-10-01&end=2022-12-31")
 parsed_url_munich <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10865&start=2016-10-01&end=2022-12-31")
-parsed_url_cologne <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=D2968&start=2016-10-01&end=2022-12-31")
-
+parsed_url_cologne <- read_html("https://d.meteostat.net/app/proxy/stations/daily?station=10519&start=2016-10-01&end=2022-12-31")
 
 #Hamburg
 
@@ -83,9 +82,9 @@ df_cologne <- parsed_url_cologne %>%
 
 df_cologne <- df_cologne$data  
 
-colnames(df_cologne) <- paste("K", colnames(df_cologne), sep = "_")
+colnames(df_cologne) <- paste("BO", colnames(df_cologne), sep = "_")
 
-df_cologne <- rename(df_cologne, date = K_date)
+df_cologne <- rename(df_cologne, date = BO_date)
 
 
 ### creating a big table with all data points 
@@ -96,7 +95,10 @@ final_weather_data <- df_hamburg%>%
   left_join(df_munich, by = 'date')%>%
   left_join(df_cologne, by = 'date')%>%
   left_join(df_frankfurt, by = 'date') %>%
-  mutate(date = as.Date(date))
+  mutate(date = as.Date(date)) %>% 
+  select(-HH_snow,-B_snow,-BO_snow,-FF_snow,-M_snow,-BO_tsun) %>%
+  .[rowSums(is.na(.)) != ncol(.)-1, ] %>%
+  mutate(across(where(is.numeric), ~ na_seadec(.x, find_frequency = TRUE)))
   
   
 
