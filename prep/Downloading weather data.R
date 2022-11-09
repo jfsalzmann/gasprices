@@ -4,14 +4,14 @@ library(tidyverse)
 library(stringr)
 library(tidyverse)
 library(rvest)
-library(janitor)
+#library(janitor)
 library(dplyr)
-library(stopwords)
-library(tm)
-library(janeaustenr)
-library(tidytext)
+#library(stopwords)
+#library(tm)
+#library(janeaustenr)
+#library(tidytext)
 library(httr)
-library(rjson)
+#library(rjson)
 library(jsonlite)
 library(tibble)
 
@@ -95,12 +95,13 @@ final_weather_data <- df_hamburg%>%
   left_join(df_berlin, by = 'date')%>%
   left_join(df_munich, by = 'date')%>%
   left_join(df_cologne, by = 'date')%>%
-  left_join(df_frankfurt, by = 'date')
+  left_join(df_frankfurt, by = 'date') %>%
+  mutate(date = as.Date(date))
+  
   
 
 #####
-save(final_weather_data,file="../data-constr/final_weather_data.RData")
-
+save(final_weather_data,file="data-constr/final_weather_data.RData")
 
 
 

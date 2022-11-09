@@ -1,41 +1,35 @@
-### Maste Joint file
-
-
-######### Join Weather
-install.packages("tidyverse")
 library("tidyverse")
 
 
 
-setwd('../data-constr')
-
-getwd()
-
-load('final_weather_data.RData')
-load('DAX_data.RData')
-load('the_combined.Rdata')
-load('the_combined_rel.Rdata')
-
-
-all_variables_combined <- final_weather_data%>%
-  left_join(DAX_data, by = 'date')
+load('data-constr/final_weather_data.RData')
+load('data-constr/DAX_data.RData')
+load('data-constr/the_combined.Rdata')
+load('data-constr/the_combined_rel.Rdata')
+load('data-constr/eex_ngp.Rdata')
+load('data-constr/Quarterly_GDP_data.Rdata')
+load('data-constr/gas_price_data.Rdata')
 
 
-all_variables_combined$date <- as.Date(all_variables_combined$date, "%Y-%m-%d")
-data_the_combined$date <- as.Date(data_the_combined$date , "%Y-%m-%d")
-
-class(all_variables_combined$date)
-class(data_the_combined$date)
-
-all_variables_combined <- all_variables_combined%>%
-  left_join(data_the_combined, by = 'date')%>%
-  left_join(data_the_combined_rel, by = 'date')
+startdate = as.Date("2017-11-01")
+currentDate = Sys.Date()-1
+date_full = seq(startdate, currentDate, by="days") %>% data.frame(date = .)
 
 
+all_variables_combined = date_full %>%
+  left_join(final_weather_data, by = 'date') %>%
+  left_join(DAX_data, by = 'date') %>%
+  left_join(data_the_combined, by = 'date') %>%
+  left_join(data_the_combined_rel, by = 'date') %>%
+  left_join(Quarterly_GDP, by = 'date') %>%
+  left_join(data_eex_ngp, by = 'date') %>%
+  left_join(gas_data, by = 'date')
 
 
+save(all_variables_combined,file="data-constr/masters_jointz.RData")
 
-
+all_variables_combined %>%
+  write_csv("data-constr/masters_jointz.csv")
 
 
 
