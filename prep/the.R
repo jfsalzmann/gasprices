@@ -91,10 +91,6 @@ data_the_combined = data_the_historic %>%
   bind_rows(data_the) %>%
   rename(date = Gasday)
 
-data_the_combined %>%
-  select(date, total) %>%
-  save(file="data-constr/the_combined.RData")
-
 
 
 data_the_combined_rel = data_the_combined %>%
@@ -103,3 +99,8 @@ data_the_combined_rel = data_the_combined %>%
   rename(date = date_rel) %>%
   select(-total_rel)
 save(data_the_combined_rel,file="data-constr/the_combined_rel.RData")
+
+
+data_the_combined %<>%
+  select(date, total)
+save(data_the_combined, file="data-constr/the_combined.RData")
