@@ -1,4 +1,8 @@
 library("tidyverse")
+library("hablar")
+library("lubridate")
+
+"%.%" = function(x,y){paste(x,y,sep = "")}
 
 
 
@@ -12,9 +16,35 @@ load('data-constr/el_price_data.Rdata')
 load('data-constr/co2_price_data.Rdata')
 
 
+###### DATES & CYCLIC BEHAVIOR
+
 startdate = as.Date("2017-11-01")
 currentDate = Sys.Date()-1
 date_full = seq(startdate, currentDate, by="days") %>% data.frame(date = .)
+
+date_full %<>%
+  mutate(day = day(date),
+         month = month(date),
+         year = year(date),
+         weekday = wday(date),
+         week = week(date))
+
+transform_sin = function(data){
+  data %>% select(-contains("_")) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "_sin") %>% mutate_all(~sin(2*pi*./max(.))) %>% cbind(data) 
+}
+
+transform_cos = function(data){
+  data %>% select(-contains("_")) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "_cos") %>% mutate_all(~cos(2*pi*./max(.))) %>% cbind(data) 
+}
+
+date_full %<>% transform_sin()
+date_full %<>% transform_cos() %>%
+  select(-contains("year_"))
+
+
+####### MASTER JOINTZ, y, na omit
 
 
 all_variables_combined = date_full %>%
@@ -28,6 +58,43 @@ all_variables_combined = date_full %>%
   left_join(co2_data, by = 'date') %>%
   rename(y = total) %>%
   na.omit()
+
+
+###### FEATURE ENGINEERING: ln,square,elasticity,infinity
+
+
+transform_ln = function(data){
+  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "__ln") %>% mutate_all(~log(.+1-min(.))) %>% cbind(data) 
+}
+
+transform_sqrd = function(data){
+  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "__sqrd") %>% mutate_all(~ .^2) %>% cbind(data) 
+}
+
+transform_elas = function(data){
+  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "__elas") %>% mutate_all(~ 1/.^2) %>% cbind(data) 
+}
+
+all_variables_combined %<>% transform_ln()
+all_variables_combined %<>% transform_sqrd()
+all_variables_combined %<>% transform_elas() %>% 
+  mutate(across(.cols = everything(), ~ ifelse(is.infinite(.x), max(s(.x))*1000, .x)))
+
+
+
+######### LAG: 7 day w/ na interpolation
+
+transform_lag = function(data,lag=1){
+  data %>% select(-contains("____"),-date) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "____lag" %.% lag) %>% mutate_all(~ lag(.,order_by = data$date)) %>% cbind(data) %>%
+    mutate_all(~ na_interpolation(.))
+}
+
+all_variables_combined %<>% transform_lag(7)
+
 
 
 save(all_variables_combined,file="data-constr/masters_jointz.RData")
