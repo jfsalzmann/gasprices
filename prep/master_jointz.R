@@ -6,7 +6,6 @@ load('data-constr/final_weather_data.RData')
 load('data-constr/DAX_data.RData')
 load('data-constr/the_combined.Rdata')
 load('data-constr/the_combined_rel.Rdata')
-load('data-constr/eex_ngp.Rdata')
 load('data-constr/Quarterly_GDP_data.Rdata')
 load('data-constr/gas_price_data.Rdata')
 
@@ -22,8 +21,8 @@ all_variables_combined = date_full %>%
   left_join(data_the_combined, by = 'date') %>%
   left_join(data_the_combined_rel, by = 'date') %>%
   left_join(Quarterly_GDP, by = 'date') %>%
-  left_join(data_eex_ngp, by = 'date') %>%
-  left_join(gas_data, by = 'date')
+  left_join(gas_data, by = 'date') %>%
+  rename(y = total)
 
 
 save(all_variables_combined,file="data-constr/masters_jointz.RData")

@@ -24,4 +24,14 @@ data_eex_ngp = read_html(file_orig) %>%
   mutate(date = anydate(date/1000))
 
 
-save(data_eex_ngp,file="data-constr/eex_ngp.RData")
+load('data-constr/gas_price_data.Rdata')
+
+
+gas_data %<>%
+  left_join(data_eex_ngp, by="date") %>%
+  filter(date <= (Sys.Date()-1)) %>%
+  mutate(gasprice_adj = case_when(is.na(ngp) ~ gasprice, TRUE ~ ngp)) %>%
+  select(-ngp)
+
+
+save(gas_data, file = "data-constr/gas_price_data.RData")

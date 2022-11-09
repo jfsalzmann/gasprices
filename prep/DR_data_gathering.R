@@ -50,12 +50,12 @@ save(DAX_data, file = "data-constr/DAX_data.RData")
 
 gas_data <- read_csv("data-orig/Dutch TTF Natural Gas Futures Historical Data.csv", col_types = cols(Date = col_date(format = "%m/%d/%Y"))) %>% 
   select(Date, Price) %>% 
-  rename(date = Date, price = Price)%>% 
+  rename(date = Date, gasprice = Price)%>% 
   mutate(date = as.Date(date))
 
 gas_data = date_full %>%
   left_join(gas_data, by=c("date")) %>%
-  mutate(price = na_interpolation(as.numeric(price)))
+  mutate(gasprice = na_interpolation(as.numeric(gasprice)))
 
 save(gas_data, file = "data-constr/gas_price_data.RData")
 

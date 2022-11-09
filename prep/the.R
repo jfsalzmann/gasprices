@@ -87,13 +87,19 @@ save(data_the_historic,file="data-constr/the_historic.RData")
 
 
 
-data_the_combined = data_the_historic %>% bind_rows(data_the) %>% rename(date = Gasday)
-save(data_the_combined,file="data-constr/the_combined.RData")
+data_the_combined = data_the_historic %>%
+  bind_rows(data_the) %>%
+  rename(date = Gasday)
+
+data_the_combined %>%
+  select(date, total) %>%
+  save(file="data-constr/the_combined.RData")
 
 
 
 data_the_combined_rel = data_the_combined %>%
   mutate(across(where(is.numeric), ~ .x/total)) %>%
   setNames(names(.) %.% "_rel") %>%
-  rename(date = date_rel)
+  rename(date = date_rel) %>%
+  select(-total_rel)
 save(data_the_combined_rel,file="data-constr/the_combined_rel.RData")
