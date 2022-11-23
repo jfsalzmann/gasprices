@@ -107,8 +107,7 @@ all_variables_combined %<>% transform_lag(7) #%>% transform_lag_diff(7)
 
 save(all_variables_combined,file="data-constr/masters_jointz.RData")
 
-all_variables_combined %>%
-  write_csv("data-constr/masters_jointz.csv")
+all_variables_combined %>% write_csv("data-constr/masters_jointz.csv")
 
 
 
@@ -124,10 +123,9 @@ arima = all_variables_combined %>%
   transform_lag(7) %>%
   select(-date)
 
-save(all_variables_combined,file="data-constr/masters_arima.RData")
+save(arima,file="data-constr/masters_arima.RData")
 
-all_variables_combined %>%
-  write_csv("data-constr/masters_arima.csv")
+arima %>% write_csv("data-constr/masters_arima.csv")
 
 
 
@@ -143,10 +141,9 @@ sarima = all_variables_combined %>%
   transform_lag(7) %>%
   select(-date)
 
-save(all_variables_combined,file="data-constr/masters_sarima.RData")
+save(arima,file="data-constr/masters_sarima.RData")
 
-all_variables_combined %>%
-  write_csv("data-constr/masters_sarima.csv")
+arima %>% write_csv("data-constr/masters_sarima.csv")
 
 
 
