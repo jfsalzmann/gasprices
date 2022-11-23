@@ -141,9 +141,9 @@ sarima = all_variables_combined %>%
   transform_lag(7) %>%
   select(-date)
 
-save(arima,file="data-constr/masters_sarima.RData")
+save(sarima,file="data-constr/masters_sarima.RData")
 
-arima %>% write_csv("data-constr/masters_sarima.csv")
+sarima %>% write_csv("data-constr/masters_sarima.csv")
 
 
 
