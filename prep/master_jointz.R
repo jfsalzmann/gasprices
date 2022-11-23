@@ -1,6 +1,8 @@
-library("tidyverse")
-library("hablar")
-library("lubridate")
+library(tidyverse)
+library(hablar)
+library(lubridate)
+library(magrittr)
+library(imputeTS)
 
 "%.%" = function(x,y){paste(x,y,sep = "")}
 
@@ -23,11 +25,11 @@ currentDate = Sys.Date()-1
 date_full = seq(startdate, currentDate, by="days") %>% data.frame(date = .)
 
 date_full %<>%
-  mutate(d_day = day(date),
-         d_month = month(date),
-         d_year = year(date),
-         d_weekday = wday(date),
-         d_week = week(date))
+  mutate(dd_day = day(date),
+         dd_month = month(date),
+         dd_year = year(date),
+         dd_weekday = wday(date),
+         dd_week = week(date))
 
 transform_sin = function(data){
   data %>% select_if(is.numeric) %>%
@@ -88,12 +90,18 @@ all_variables_combined %<>% transform_elas() %>%
 ######### LAG: 7 day w/ na interpolation
 
 transform_lag = function(data,lag=1){
-  data %>% select(-contains("____"),-date,-contains("d_")) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("____"),-date,-contains("dd_")) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "____lag" %.% lag) %>% mutate_all(~ lag(.,order_by = data$date)) %>% cbind(data) %>%
     mutate_all(~ na_interpolation(.))
 }
 
-all_variables_combined %<>% transform_lag(7)
+transform_lag_diff = function(data,lag=1){
+  data %>% select(-contains("____"),-date,-contains("dd_")) %>% select_if(is.numeric) %>%
+    rename_all(~ . %.% "____dlag" %.% lag) %>% mutate_all(~ .-lag(.,order_by = data$date)) %>% cbind(data) %>%
+    mutate_all(~ na_interpolation(.))
+}
+
+all_variables_combined %<>% transform_lag(7) #%>% transform_lag_diff(7)
 
 
 
@@ -105,7 +113,40 @@ all_variables_combined %>%
 
 
 
+arima = all_variables_combined %>% 
+  select(y,date) %>%
+  transform_lag(1) %>% 
+  transform_lag(2) %>% 
+  transform_lag(3) %>% 
+  transform_lag(4) %>% 
+  transform_lag(5) %>% 
+  transform_lag(6) %>% 
+  transform_lag(7) %>%
+  select(-date)
 
+save(all_variables_combined,file="data-constr/masters_arima.RData")
+
+all_variables_combined %>%
+  write_csv("data-constr/masters_arima.csv")
+
+
+
+
+sarima = all_variables_combined %>% 
+  select(y,date,contains("dd_")) %>%
+  transform_lag(1) %>% 
+  transform_lag(2) %>% 
+  transform_lag(3) %>% 
+  transform_lag(4) %>% 
+  transform_lag(5) %>% 
+  transform_lag(6) %>% 
+  transform_lag(7) %>%
+  select(-date)
+
+save(all_variables_combined,file="data-constr/masters_sarima.RData")
+
+all_variables_combined %>%
+  write_csv("data-constr/masters_sarima.csv")
 
 
 
