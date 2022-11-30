@@ -83,7 +83,7 @@ transform_elas = function(data){
 all_variables_combined %<>% transform_ln()
 all_variables_combined %<>% transform_sqrd()
 all_variables_combined %<>% transform_elas() %>% 
-  mutate(across(.cols = everything(), ~ ifelse(is.infinite(.x), max(s(.x))*1000, .x)))
+  mutate(across(where(is.numeric), ~ ifelse(is.infinite(.x), max(s(.x))*1000, .x)))
 
 
 
@@ -151,7 +151,7 @@ sarima %>% write_csv("data-constr/masters_sarima.csv")
 
 
 actual_sarima = all_variables_combined %>% 
-  select(y,date)
+  select(y,date) %>% mutate(date = as.numeric(date))
 
 
 actual_sarima %>% write_csv("data-constr/actual_sarima.csv")
