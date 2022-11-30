@@ -6,7 +6,7 @@ library(imputeTS)
 
 "%.%" = function(x,y){paste(x,y,sep = "")}
 
-
+setwd('/Users/finnkruger/Documents/GitHub/gasprices')
 
 load('data-constr/final_weather_data.RData')
 load('data-constr/DAX_data.RData')
@@ -148,7 +148,14 @@ sarima %>% write_csv("data-constr/masters_sarima.csv")
 
 
 
+### Actual_Arima
 
+
+actual_sarima = all_variables_combined %>% 
+  select(y,date)
+
+
+actual_sarima %>% write_csv("data-constr/actual_sarima.csv")
 
 
 
