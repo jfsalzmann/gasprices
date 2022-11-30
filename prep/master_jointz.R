@@ -6,7 +6,7 @@ library(imputeTS)
 
 "%.%" = function(x,y){paste(x,y,sep = "")}
 
-setwd('/Users/finnkruger/Documents/GitHub/gasprices')
+#setwd('/Users/finnkruger/Documents/GitHub/gasprices')
 
 load('data-constr/final_weather_data.RData')
 load('data-constr/DAX_data.RData')
@@ -95,19 +95,18 @@ transform_lag = function(data,lag=1){
     mutate_all(~ na_interpolation(.))
 }
 
-transform_lag_diff = function(data,lag=1){
-  data %>% select(-contains("____"),-date,-contains("dd_")) %>% select_if(is.numeric) %>%
-    rename_all(~ . %.% "____dlag" %.% lag) %>% mutate_all(~ .-lag(.,order_by = data$date)) %>% cbind(data) %>%
-    mutate_all(~ na_interpolation(.))
-}
-
-all_variables_combined %<>% transform_lag(7) #%>% transform_lag_diff(7)
+all_variables_combined %<>% transform_lag(7)
 
 
+all_variables_combined_midterm = all_variables_combined %>% select(-(contains("y_") & contains("____lag")))
+all_variables_combined_ar = all_variables_combined %>% select(-((contains("Gas",ignore.case=FALSE) | contains("y_")) & !contains("____lag")))
 
-save(all_variables_combined,file="data-constr/masters_jointz.RData")
 
-all_variables_combined %>% write_csv("data-constr/masters_jointz.csv")
+save(all_variables_combined_midterm,file="data-constr/masters_jointz.RData")
+all_variables_combined_ar %>% write_csv("data-constr/masters_jointz.csv")
+
+save(all_variables_combined,file="data-constr/masters_jointz_ar.RData")
+all_variables_combined_ar %>% write_csv("data-constr/masters_jointz_ar.csv")
 
 
 
@@ -208,3 +207,13 @@ actual_sarima %>% write_csv("data-constr/actual_sarima.csv")
 # 
 # including_weather_price %>%
 #   write_csv("../data-constr/masters_jointz.csv")
+
+
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=HGasSLPsyn_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=LGasSLPsyn_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=HGasSLPana_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=LGasSLPana_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=HGasRLMmT_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=LGasRLMmT_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=HGasRLMoT_rel)) + geom_line()
+# all_variables_combined %>% filter(date > "2021-01-01") %>% ggplot(aes(x=date,y=LGasRLMoT_rel)) + geom_line()
