@@ -103,7 +103,7 @@ all_variables_combined_ar = all_variables_combined %>% select(-((contains("Gas",
 
 
 save(all_variables_combined_midterm,file="data-constr/masters_jointz.RData")
-all_variables_combined_ar %>% write_csv("data-constr/masters_jointz.csv")
+all_variables_combined_midterm %>% write_csv("data-constr/masters_jointz.csv")
 
 save(all_variables_combined,file="data-constr/masters_jointz_ar.RData")
 all_variables_combined_ar %>% write_csv("data-constr/masters_jointz_ar.csv")
