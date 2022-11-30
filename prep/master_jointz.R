@@ -120,8 +120,8 @@ arima = all_variables_combined %>%
   transform_lag(4) %>% 
   transform_lag(5) %>% 
   transform_lag(6) %>% 
-  transform_lag(7) %>%
-  select(-date)
+  transform_lag(7) #%>%
+  #select(-date)
 
 save(arima,file="data-constr/masters_arima.RData")
 
@@ -138,8 +138,8 @@ sarima = all_variables_combined %>%
   transform_lag(4) %>% 
   transform_lag(5) %>% 
   transform_lag(6) %>% 
-  transform_lag(7) %>%
-  select(-date)
+  transform_lag(7) #%>%
+  #select(-date)
 
 save(sarima,file="data-constr/masters_sarima.RData")
 
