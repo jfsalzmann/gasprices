@@ -66,17 +66,17 @@ all_variables_combined = date_full %>%
 
 
 transform_ln = function(data){
-  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("__"),-date,-y) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "__ln") %>% mutate_all(~log(.+1-min(.))) %>% cbind(data) 
 }
 
 transform_sqrd = function(data){
-  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("__"),-date,-y) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "__sqrd") %>% mutate_all(~ .^2) %>% cbind(data) 
 }
 
 transform_elas = function(data){
-  data %>% select(-contains("__"),-date) %>% select_if(is.numeric) %>%
+  data %>% select(-contains("__"),-date,-y) %>% select_if(is.numeric) %>%
     rename_all(~ . %.% "__elas") %>% mutate_all(~ 1/.^2) %>% cbind(data) 
 }
 
